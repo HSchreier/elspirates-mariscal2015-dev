@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import { Water } from 'three/examples/jsm/objects/Water.js';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import Stats from 'three/examples/jsm/libs/stats.module.js';
 
 type OceanConfig = {
   cameraPosition: THREE.Vector3;
@@ -26,8 +24,6 @@ export class ThreeOceanManager {
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera;
   private renderer: THREE.WebGLRenderer;
-  private controls: OrbitControls;
-  private stats: Stats;
   private water: Water;
   private sky: Sky;
   private shipRef: THREE.Group | null = null;
@@ -94,14 +90,6 @@ export class ThreeOceanManager {
     this.water.rotation.x = -Math.PI / 2;
     this.scene.add(this.water);
 
-    // Controls
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 0.5, 0);
-    this.controls.update();
-
-    // Stats
-    this.stats = new Stats();
-
     // Load models asynchronously
     this.loadIsland();
     this.loadShip();
@@ -121,7 +109,6 @@ export class ThreeOceanManager {
     this.container = container;
     if (!container.contains(this.renderer.domElement)) {
       container.appendChild(this.renderer.domElement);
-      container.appendChild(this.stats.dom);
     }
     this.startAnimation();
     this.handleResize();
@@ -132,9 +119,6 @@ export class ThreeOceanManager {
     if (this.container) {
       if (this.container.contains(this.renderer.domElement)) {
         this.container.removeChild(this.renderer.domElement);
-      }
-      if (this.container.contains(this.stats.dom)) {
-        this.container.removeChild(this.stats.dom);
       }
     }
   }
@@ -219,12 +203,10 @@ export class ThreeOceanManager {
   }
 
   private animate = (timestamp: number) => {
-    this.stats.update();
-    this.controls.update();
 
     // Animate water
     if (this.water) {
-      (this.water.material.uniforms as any).time.value += 1.0 / 60.0;
+      (this.water.material.uniforms as any).time.value += 0.25 / 25.0;
     }
 
     // Move ship forward
